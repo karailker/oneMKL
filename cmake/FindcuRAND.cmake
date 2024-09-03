@@ -56,7 +56,7 @@
 # so.
 #=================================================================================
 
-find_package(CUDA 10.0 REQUIRED)
+find_package(CUDAToolkit 10.0 REQUIRED)
 get_filename_component(SYCL_BINARY_DIR ${CMAKE_CXX_COMPILER} DIRECTORY)
 
 if (NOT (ONEMKL_SYCL_IMPLEMENTATION STREQUAL "hipsycl"))
@@ -79,36 +79,34 @@ include(FindPackageHandleStandardArgs)
 if (ONEMKL_SYCL_IMPLEMENTATION STREQUAL "hipsycl")
 find_package_handle_standard_args(cuRAND
     REQUIRED_VARS
-	CUDA_TOOLKIT_INCLUDE
-	CUDA_curand_LIBRARY
-        CUDA_LIBRARIES
-        CUDA_CUDA_LIBRARY
+      CUDAToolkit_INCLUDE_DIRS
+      CUDAToolkit_LIBRARY_DIR
+      CUDAToolkit_LIBRARY_ROOT
 )
 
   if(NOT TARGET ONEMKL::cuRAND::cuRAND)
   add_library(ONEMKL::cuRAND::cuRAND SHARED IMPORTED)
   set_target_properties(ONEMKL::cuRAND::cuRAND PROPERTIES
-    IMPORTED_LOCATION ${CUDA_curand_LIBRARY}
-    INTERFACE_INCLUDE_DIRECTORIES "${CUDA_TOOLKIT_INCLUDE}"
-    INTERFACE_LINK_LIBRARIES "Threads::Threads;${CUDA_CUDA_LIBRARY};${CUDA_LIBRARIES}"
+    IMPORTED_LOCATION CUDA::curand
+    INTERFACE_INCLUDE_DIRECTORIES "${CUDAToolkit_INCLUDE_DIRS}"
+    INTERFACE_LINK_LIBRARIES "Threads::Threads;CUDA::cuda_driver;CUDA::cudart"
   )
   endif()
 else()
 find_package_handle_standard_args(cuRAND
     REQUIRED_VARS
-	CUDA_TOOLKIT_INCLUDE
-	CUDA_curand_LIBRARY
-        CUDA_LIBRARIES
-        CUDA_CUDA_LIBRARY
-        OPENCL_INCLUDE_DIR
+      CUDAToolkit_INCLUDE_DIRS
+      CUDAToolkit_LIBRARY_DIR
+      CUDAToolkit_LIBRARY_ROOT
+      OPENCL_INCLUDE_DIR
 )
 
   if(NOT TARGET ONEMKL::cuRAND::cuRAND)
   add_library(ONEMKL::cuRAND::cuRAND SHARED IMPORTED)
   set_target_properties(ONEMKL::cuRAND::cuRAND PROPERTIES
-    IMPORTED_LOCATION ${CUDA_curand_LIBRARY}
-    INTERFACE_INCLUDE_DIRECTORIES "${OPENCL_INCLUDE_DIR};${CUDA_TOOLKIT_INCLUDE}"
-    INTERFACE_LINK_LIBRARIES "Threads::Threads;${CUDA_CUDA_LIBRARY};${CUDA_LIBRARIES}"
+    IMPORTED_LOCATION CUDA::curand
+    INTERFACE_INCLUDE_DIRECTORIES "${OPENCL_INCLUDE_DIR};${CUDAToolkit_INCLUDE_DIRS}"
+    INTERFACE_LINK_LIBRARIES "Threads::Threads;CUDA::cuda_driver;CUDA::cudart"
   )
   endif()
 endif()
