@@ -41,6 +41,8 @@ find_package(Threads REQUIRED)
 # Include the module to handle standard arguments
 include(FindPackageHandleStandardArgs)
 
+get_target_property(CUBLAS_PATH CUDA::cublas IMPORTED_LOCATION)
+
 if(NOT TARGET ONEMKL::cuBLAS::cuBLAS)
   add_library(ONEMKL::cuBLAS::cuBLAS SHARED IMPORTED)
 
@@ -53,6 +55,7 @@ if(NOT TARGET ONEMKL::cuBLAS::cuBLAS)
         CUDAToolkit_LIBRARY_ROOT
     )
     set_target_properties(ONEMKL::cuBLAS::cuBLAS PROPERTIES
+      IMPORTED_LOCATION ${CUBLAS_PATH}
       INTERFACE_INCLUDE_DIRECTORIES "${CUDAToolkit_INCLUDE_DIRS}"
       INTERFACE_LINK_LIBRARIES "Threads::Threads;CUDA::cuda_driver;CUDA::cudart;CUDA::cublas"
     )
@@ -66,6 +69,7 @@ if(NOT TARGET ONEMKL::cuBLAS::cuBLAS)
         OPENCL_INCLUDE_DIR
     )
     set_target_properties(ONEMKL::cuBLAS::cuBLAS PROPERTIES
+      IMPORTED_LOCATION ${CUBLAS_PATH}
       INTERFACE_INCLUDE_DIRECTORIES "${OPENCL_INCLUDE_DIR};${CUDAToolkit_INCLUDE_DIRS}"
       INTERFACE_LINK_LIBRARIES "Threads::Threads;CUDA::cuda_driver;CUDA::cudart;CUDA::cublas"
     )
