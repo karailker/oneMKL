@@ -17,53 +17,59 @@
 #
 #=========================================================================
 
-find_package(CUDA 10.0 REQUIRED)
+# Use the CUDAToolkit package instead of FindCUDA
+find_package(CUDAToolkit 10.0 REQUIRED)
+
+# Obtain the SYCL binary directory from the CXX compiler
 get_filename_component(SYCL_BINARY_DIR ${CMAKE_CXX_COMPILER} DIRECTORY)
-# the OpenCL include file from cuda is opencl 1.1 and it is not compatible with DPC++
-# the OpenCL include headers 1.2 onward is required. This is used to bypass NVIDIA OpenCL headers
-find_path(OPENCL_INCLUDE_DIR CL/cl.h OpenCL/cl.h 
-HINTS 
-${OPENCL_INCLUDE_DIR}
-${SYCL_BINARY_DIR}/../include/sycl/
-${SYCL_BINARY_DIR}/../../include/sycl/
+
+# The OpenCL include file from CUDA is OpenCL 1.1 and is not compatible with DPC++
+# OpenCL include headers 1.2 onward are required. This bypasses NVIDIA OpenCL headers
+find_path(OPENCL_INCLUDE_DIR CL/cl.h OpenCL/cl.h
+  HINTS
+    ${OPENCL_INCLUDE_DIR}
+    ${SYCL_BINARY_DIR}/../include/sycl/
+    ${SYCL_BINARY_DIR}/../../include/sycl/
 )
-# this is work around to avoid duplication half creation in both cuda and SYCL
+
+# Workaround to avoid duplicate half creation in both CUDA and SYCL
 add_compile_definitions(CUDA_NO_HALF)
 
+# Find Threads package
 find_package(Threads REQUIRED)
 
+# Include the module to handle standard arguments
 include(FindPackageHandleStandardArgs)
-
 
 if(NOT TARGET ONEMKL::cuBLAS::cuBLAS)
   add_library(ONEMKL::cuBLAS::cuBLAS SHARED IMPORTED)
+
   if(USE_ADD_SYCL_TO_TARGET_INTEGRATION)
+    # Handle standard arguments for cuBLAS integration with SYCL
     find_package_handle_standard_args(cuBLAS
-        REQUIRED_VARS
-          CUDA_TOOLKIT_INCLUDE
-          CUDA_cublas_LIBRARY
-          CUDA_LIBRARIES
-          CUDA_CUDART_LIBRARY
-	  CUDA_CUDA_LIBRARY
+      REQUIRED_VARS
+        CUDAToolkit_INCLUDE_DIRS
+        CUDAToolkit_LIBRARY_DIR
+        CUDAToolkit_LIBRARY_ROOT
     )
     set_target_properties(ONEMKL::cuBLAS::cuBLAS PROPERTIES
-        IMPORTED_LOCATION ${CUDA_cublas_LIBRARY}
-        INTERFACE_INCLUDE_DIRECTORIES "${CUDA_TOOLKIT_INCLUDE}"
-        INTERFACE_LINK_LIBRARIES "Threads::Threads;${CUDA_LIBRARIES};${CUDA_CUDART_LIBRARY};${CUDA_CUDA_LIBRARY}"
+      IMPORTED_LOCATION CUDA::cublas
+      INTERFACE_INCLUDE_DIRECTORIES "${CUDAToolkit_INCLUDE_DIRS}"
+      INTERFACE_LINK_LIBRARIES "Threads::Threads;CUDA::cuda_driver;CUDA::cudart;CUDA::cublas"
     )
   else()
+    # Handle standard arguments for cuBLAS without SYCL
     find_package_handle_standard_args(cuBLAS
-        REQUIRED_VARS
-          CUDA_TOOLKIT_INCLUDE
-          CUDA_cublas_LIBRARY
-          CUDA_LIBRARIES
-          CUDA_CUDA_LIBRARY
-          OPENCL_INCLUDE_DIR
+      REQUIRED_VARS
+        CUDAToolkit_INCLUDE_DIRS
+        CUDAToolkit_LIBRARY_DIR
+        CUDAToolkit_LIBRARY_ROOT
+        OPENCL_INCLUDE_DIR
     )
     set_target_properties(ONEMKL::cuBLAS::cuBLAS PROPERTIES
-        IMPORTED_LOCATION ${CUDA_cublas_LIBRARY}
-        INTERFACE_INCLUDE_DIRECTORIES "${OPENCL_INCLUDE_DIR};${CUDA_TOOLKIT_INCLUDE}"
-        INTERFACE_LINK_LIBRARIES "Threads::Threads;${CUDA_CUDA_LIBRARY};${CUDA_LIBRARIES}"
+      IMPORTED_LOCATION CUDA::cublas
+      INTERFACE_INCLUDE_DIRECTORIES "${OPENCL_INCLUDE_DIR};${CUDAToolkit_INCLUDE_DIRS}"
+      INTERFACE_LINK_LIBRARIES "Threads::Threads;CUDA::cuda_driver;CUDA::cudart"
     )
   endif()
 endif()
