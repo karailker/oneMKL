@@ -53,7 +53,6 @@ if(NOT TARGET ONEMKL::cuBLAS::cuBLAS)
         CUDAToolkit_LIBRARY_ROOT
     )
     set_target_properties(ONEMKL::cuBLAS::cuBLAS PROPERTIES
-      IMPORTED_LOCATION CUDA::cublas
       INTERFACE_INCLUDE_DIRECTORIES "${CUDAToolkit_INCLUDE_DIRS}"
       INTERFACE_LINK_LIBRARIES "Threads::Threads;CUDA::cuda_driver;CUDA::cudart;CUDA::cublas"
     )
@@ -67,9 +66,8 @@ if(NOT TARGET ONEMKL::cuBLAS::cuBLAS)
         OPENCL_INCLUDE_DIR
     )
     set_target_properties(ONEMKL::cuBLAS::cuBLAS PROPERTIES
-      IMPORTED_LOCATION CUDA::cublas
       INTERFACE_INCLUDE_DIRECTORIES "${OPENCL_INCLUDE_DIR};${CUDAToolkit_INCLUDE_DIRS}"
-      INTERFACE_LINK_LIBRARIES "Threads::Threads;CUDA::cuda_driver;CUDA::cudart"
+      INTERFACE_LINK_LIBRARIES "Threads::Threads;CUDA::cuda_driver;CUDA::cudart;CUDA::cublas"
     )
   endif()
 endif()
