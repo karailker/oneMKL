@@ -87,9 +87,8 @@ find_package_handle_standard_args(cuRAND
   if(NOT TARGET ONEMKL::cuRAND::cuRAND)
   add_library(ONEMKL::cuRAND::cuRAND SHARED IMPORTED)
   set_target_properties(ONEMKL::cuRAND::cuRAND PROPERTIES
-    IMPORTED_LOCATION CUDA::curand
     INTERFACE_INCLUDE_DIRECTORIES "${CUDAToolkit_INCLUDE_DIRS}"
-    INTERFACE_LINK_LIBRARIES "Threads::Threads;CUDA::cuda_driver;CUDA::cudart"
+    INTERFACE_LINK_LIBRARIES "Threads::Threads;CUDA::cuda_driver;CUDA::cudart;CUDA::curand"
   )
   endif()
 else()
@@ -104,9 +103,8 @@ find_package_handle_standard_args(cuRAND
   if(NOT TARGET ONEMKL::cuRAND::cuRAND)
   add_library(ONEMKL::cuRAND::cuRAND SHARED IMPORTED)
   set_target_properties(ONEMKL::cuRAND::cuRAND PROPERTIES
-    IMPORTED_LOCATION CUDA::curand
     INTERFACE_INCLUDE_DIRECTORIES "${OPENCL_INCLUDE_DIR};${CUDAToolkit_INCLUDE_DIRS}"
-    INTERFACE_LINK_LIBRARIES "Threads::Threads;CUDA::cuda_driver;CUDA::cudart"
+    INTERFACE_LINK_LIBRARIES "Threads::Threads;CUDA::cuda_driver;CUDA::cudart;CUDA::curand"
   )
   endif()
 endif()
