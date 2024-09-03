@@ -76,6 +76,8 @@ find_package(Threads REQUIRED)
 
 include(FindPackageHandleStandardArgs)
 
+get_target_property(CURAND_PATH CUDA::curand IMPORTED_LOCATION)
+
 if (ONEMKL_SYCL_IMPLEMENTATION STREQUAL "hipsycl")
 find_package_handle_standard_args(cuRAND
     REQUIRED_VARS
@@ -87,6 +89,7 @@ find_package_handle_standard_args(cuRAND
   if(NOT TARGET ONEMKL::cuRAND::cuRAND)
   add_library(ONEMKL::cuRAND::cuRAND SHARED IMPORTED)
   set_target_properties(ONEMKL::cuRAND::cuRAND PROPERTIES
+    IMPORTED_LOCATION ${CURAND_PATH}
     INTERFACE_INCLUDE_DIRECTORIES "${CUDAToolkit_INCLUDE_DIRS}"
     INTERFACE_LINK_LIBRARIES "Threads::Threads;CUDA::cuda_driver;CUDA::cudart;CUDA::curand"
   )
@@ -103,6 +106,7 @@ find_package_handle_standard_args(cuRAND
   if(NOT TARGET ONEMKL::cuRAND::cuRAND)
   add_library(ONEMKL::cuRAND::cuRAND SHARED IMPORTED)
   set_target_properties(ONEMKL::cuRAND::cuRAND PROPERTIES
+    IMPORTED_LOCATION ${CURAND_PATH}
     INTERFACE_INCLUDE_DIRECTORIES "${OPENCL_INCLUDE_DIR};${CUDAToolkit_INCLUDE_DIRS}"
     INTERFACE_LINK_LIBRARIES "Threads::Threads;CUDA::cuda_driver;CUDA::cudart;CUDA::curand"
   )
