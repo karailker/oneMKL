@@ -17,7 +17,7 @@
 #
 #=========================================================================
 
-find_package(CUDA 10.0 REQUIRED)
+find_package(CUDAToolkit 10.0 REQUIRED)
 get_filename_component(SYCL_BINARY_DIR ${CMAKE_CXX_COMPILER} DIRECTORY)
 # the OpenCL include file from cuda is opencl 1.1 and it is not compatible with DPC++
 # the OpenCL include headers 1.2 onward is required. This is used to bypass NVIDIA OpenCL headers
@@ -32,18 +32,20 @@ add_compile_definitions(CUDA_NO_HALF)
 find_package(Threads REQUIRED)
 
 include(FindPackageHandleStandardArgs)
+
+get_target_property(CUSOLVER_PATH CUDA::cusolver IMPORTED_LOCATION)
+
 find_package_handle_standard_args(cuSOLVER
     REQUIRED_VARS
-	CUDA_TOOLKIT_INCLUDE
-	CUDA_cusolver_LIBRARY
-        CUDA_LIBRARIES
-        CUDA_CUDA_LIBRARY
-        OPENCL_INCLUDE_DIR
+      CUDAToolkit_INCLUDE_DIRS
+      CUDAToolkit_LIBRARY_DIR
+      CUDAToolkit_LIBRARY_ROOT
+      OPENCL_INCLUDE_DIR
 )
 if(NOT TARGET ONEMKL::cuSOLVER::cuSOLVER)
   add_library(ONEMKL::cuSOLVER::cuSOLVER SHARED IMPORTED)
   set_target_properties(ONEMKL::cuSOLVER::cuSOLVER PROPERTIES
-      IMPORTED_LOCATION ${CUDA_cusolver_LIBRARY}
+      IMPORTED_LOCATION ${CUSOLVER_PATH}
       INTERFACE_INCLUDE_DIRECTORIES "${OPENCL_INCLUDE_DIR};${CUDA_TOOLKIT_INCLUDE}"
       INTERFACE_LINK_LIBRARIES "Threads::Threads;${CUDA_CUDA_LIBRARY};${CUDA_LIBRARIES}"
   )
